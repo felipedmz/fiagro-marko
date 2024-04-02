@@ -1,11 +1,9 @@
-import sys
 import time
 import pandas as pd
 from datetime import datetime
 from pypfopt.efficient_frontier import EfficientFrontier
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import CovarianceShrinkage
-
 
 def calculate(file_path):
     df = pd.read_csv(file_path, sep=";", quotechar='"', index_col=0)
@@ -23,12 +21,12 @@ def calculate(file_path):
     df_pesos = pd.DataFrame(list(pesos_porcentagem.items()), columns=['Fundo', 'Alocação (%)'])
     return df_pesos
 #
-def main():
+def run(filename):
     now = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
     print(f'> fiagro.markowitz - started={now}')
     start_time = time.time()
     print(f'... starting markowitz optimized allocation')
-    result = calculate(sys.argv[1])
+    result = calculate(filename)
     print(f'... best allocation found', result)
     output_file_name = "alocacao_optima.csv"
     result.to_csv(output_file_name, index=False)
@@ -37,4 +35,3 @@ def main():
     elapsed_time = end_time - start_time
     print(f'> end - elapsed time={elapsed_time}')
 #
-main()
