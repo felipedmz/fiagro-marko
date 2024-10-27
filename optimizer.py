@@ -4,14 +4,18 @@ from datetime import datetime
 from pypfopt.efficient_frontier import EfficientFrontier
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import CovarianceShrinkage
+import numpy as np
 
 def calculate(file_path):
-    df = pd.read_csv(file_path, sep=";", quotechar='"', index_col=0)
+    df = pd.read_csv(file_path, sep=";", index_col=0)
     # calculando os retornos esperados e a matriz de covariância
     retornos_esperados = mean_historical_return(df)
     matriz_covariancia = CovarianceShrinkage(df).ledoit_wolf()
+    # Regularização: adicionando um pequeno valor à diagonal da matriz de covariância
+    delta = 1e-4
+    matriz_covariancia_regularizada = matriz_covariancia + delta * np.eye(matriz_covariancia.shape[0])
     # otimizando para o máximo Sharpe Ratio
-    ef = EfficientFrontier(retornos_esperados, matriz_covariancia)
+    ef = EfficientFrontier(retornos_esperados, matriz_covariancia_regularizada)
     pesos = ef.max_sharpe()
     #print('... pesos', pesos)
     pesos_limpos = ef.clean_weights()
